@@ -18,7 +18,7 @@ enum e_messages{
 	E_PART,
 };
 
-void	ign(Server &s, int z, std::string n); // ignore cmd
+void	ign(Server &s, int fd, std::string n);
 
 // Connection registration
 void	pass(Server &s, int fd, std::string pwd);

@@ -65,10 +65,13 @@ static void	initSocket(Socket &b){
 }
 
 static void	initBind(Socket &b){
+	//Get the address of the socket
 	struct sockaddr_in addr = b.getAddr();
+	//Get the socket file descriptor
 	int sockfd = b.getSockFd();
 	int rc;
 
+	//Bind the socket file descriptor to the address
 	rc = bind(sockfd, (const struct sockaddr *)(&addr), sizeof(addr));
 	if (rc == ERROR){
 		perror("\e[31mBind failed \e[0m");
@@ -81,6 +84,7 @@ static void	initListen(Socket &b){
 	int sockfd = b.getSockFd();
 	int	rc;
 
+	// 1. set the socket to listen for incoming connections
 	rc = listen(sockfd, SOMAXCONN);
 	if (rc == ERROR){
 		perror("\e[31mListen failed \e[0m");

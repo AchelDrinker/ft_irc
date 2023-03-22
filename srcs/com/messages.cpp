@@ -2,12 +2,37 @@
 
 static int trimFirstSpace(int fd, std::string &s);
 
-// ignore cmd
-void ign(Server &s, int z, std::string n){
+void ign(Server &s, int fd, std::string n){
 	(void)s;
-	(void)z;
 	(void)n;
+	send(fd, "PONG 127.0.0.1\n", strlen("PONG 127.0.0.1\n"), 0);
+	std::cout << "                     O 					" << std::endl;
+    std::cout << "                   _/|)_-O				" << std::endl;
+    std::cout << "                  ___|_______				" << std::endl;
+    std::cout << "                 (     |   o )			" << std::endl;
+    std::cout << "                (      |      )			" << std::endl;
+    std::cout << "               #################			" << std::endl;
+    std::cout << "              (   _ ( )|        )			" << std::endl;
+    std::cout << "             (   ( ) | |         )		" << std::endl;
+    std::cout << "            (  (  |_/  |          )		" << std::endl;
+    std::cout << "           (____(/|____|___________)		" << std::endl;
+    std::cout << "              |   |             |			" << std::endl;
+    std::cout << "              |  / )            |			" << std::endl;
+    std::cout << "              | /   )           |			" << std::endl;
+    std::cout << "              _/    /_					" << std::endl;
+	std::cout << "                      					" << std::endl;
+	std::cout << "		88888b.  .d88b. 88888b.  .d88b. 	" << std::endl;
+	std::cout << "		888  88bd88  88b888  88bd88P 88b	" << std::endl;
+	std::cout << "		888  888888  888888  888888  888	" << std::endl;
+	std::cout << "		888 d88PY88..88P888  888Y88b 888	" << std::endl;
+	std::cout << "		88888P    Y88P  888  888  Y88888 	" << std::endl;
+	std::cout << "		888                          888 	" << std::endl;
+	std::cout << "		888                     Y8b d88P 	" << std::endl;
+	std::cout << "		888                       Y88P   	" << std::endl;
 }
+
+
+
 
 // Connection registration
 
@@ -19,7 +44,7 @@ void pass(Server &s, int fd, std::string pwd){
 		return;
 	}
 	if (s.getPwd() == pwd){
-		send(fd, "SUCCESS", strlen("SUCCESS"), 0);
+		send(fd, "SUCCESS\n", strlen("SUCCESS\n"), 0);
 		s.getClients(fd)->setPass(1);
 	}else
 		send(fd, ERR_PASSWDMISMATCH, sizeof(ERR_PASSWDMISMATCH), 0);
@@ -149,6 +174,7 @@ void list(Server &s, int fd, std::string channel){
 	(void)channel;
 }
 void kick(Server &s, int fd, std::string input){
+	// Check if the user is not authorized to kick someone
 	if (trimFirstSpace(fd, input) || s.getClients(fd)->getChanRights().empty())
 		return;
 
@@ -156,6 +182,7 @@ void kick(Server &s, int fd, std::string input){
 	size_t pos = 0;
 	std::string data[3];
 
+	// Split the command in 3 parts: the channel, the user to kick and the reason
 	while ((pos = input.find(" ")) != std::string::npos){
 		data[i] = input.substr(0, pos);
 		input.erase(0, pos + 1);
@@ -164,24 +191,41 @@ void kick(Server &s, int fd, std::string input){
 	data[i] = input.substr(0, pos);
 	std::list<std::string>				chanRights = s.getClients(fd)->getChanRights();
 	std::list<std::string>::iterator 	itl;
+
+	// Check if the user is authorized to kick someone
 	for (itl = chanRights.begin(); itl != chanRights.end(); ++itl)
 		if (*itl == data[1]){
 			return;
 		}
 	std::list<std::string>::iterator it;
-	for (it = s.getClients(fd)->getChanRights().begin(); it != s.getClients(fd)->getChanRights().end(); it++){
-		if (*it == data[0]){
-			s.rmChannelUser(data[0], s.getClientsUser(data[1]));
-			std::string msg;
-			msg = ":you have been kicked from <";
-			msg += data[0];
-			msg += "> chan ";
-			msg += data[2];
-			msg += "\n";
-			send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
-			break;
-		}
+
+	// Check if the user is in the channel
+	//get the list of channels the client is connected to
+for (it = s.getClients(fd)->getChanRights().begin(); it != s.getClients(fd)->getChanRights().end(); it++)
+{
+	std::cout << "channel: " << *it << std::endl;
+	std::cout << "data[0]: " << data[0] << std::endl;
+	//if the client is connected to the channel that the operator wants to kick the user from
+	if (*it == data[0])
+	{
+		std::cout << "ici" << std::endl;
+		//remove the user from the channel
+		s.rmChannelUser(data[0], s.getClientsUser(data[1]));
+		std::cout << "ici2" << std::endl;
+		std::string msg;
+		std::cout << "ici3" << std::endl;
+		//send a message to the user telling him he has been kicked
+		msg = ":you have been kicked from <";
+		msg += data[0];
+		msg += "> chan ";
+		msg += data[2];
+		msg += "\n";
+		std::cout << "ici4" << std::endl;
+		send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
+		std::cout << "ici5" << std::endl;
+		break;
 	}
+}
 }
 //Sending messages
 
@@ -275,13 +319,6 @@ void notice(Server &s, int fd, std::string targetAndText){
 	}
 }
 
-
-// void	pong(int fd){
-// 	send(fd, "PONG 127.0.0.1", strlen("PONG 127.0.0.1"), 0);
-// 	std::cout << "*-*" << std::endl;
-// 	std::cout << "PONG" << std::endl;
-// 	std::cout << "*-*" << std::endl;
-// }
 
 static int trimFirstSpace(int fd, std::string &s){
 	try{

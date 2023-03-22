@@ -59,17 +59,24 @@ void	Server::addChannelUser(std::string chan, Client *c){
 			it->second->push_back(c);
 	}
 }
+// Remove an user from a channel
 void	Server::rmChannelUser(std::string chan, Client *c){
 	std::map<Channel *, std::list<Client*>* >::iterator it;
 
+	// If the client is NULL, return
 	if (c == NULL)
 		return ;
+	// Iterate through the channel list
 	for (it = channelList.begin(); it != channelList.end(); ++it){
+		// If the channel has the same name as the one we want to delete the client from
 		if (it->first->getName() == chan){
+			// Remove the client from the channel's list
 			it->second->remove(c);
+			// If the channel's list is empty, delete the channel and the list
 			if (it->second->empty()){
 				delete it->first;
 				delete it->second;
+				// Erase the channel from the channel list
 				channelList.erase(it);
 				break;
 			}
