@@ -2,6 +2,70 @@
 
 static int trimFirstSpace(int fd, std::string &s);
 
+// CMD = OP test <user to promot> <reason>
+void op(Server &s, int fd, std::string cmd){
+
+	// If the command is empty, return
+	if (cmd.empty())
+		return;
+	// If the command starts with a space, remove it
+	if (trimFirstSpace(fd, cmd))
+		return;
+	size_t i = 0;
+	size_t pos = 0;
+	std::string data[3];
+
+	// Split the command in 3 parts: the channel, the user to promot and the reason
+	while ((pos = cmd.find(" ")) != std::string::npos){
+		data[i] = cmd.substr(0, pos);
+		cmd.erase(0, pos + 1);
+		i++;
+	}
+	data[i] = cmd.substr(0, pos);
+	std::list<std::string>				chanRights = s.getClients(fd)->getChanRights();
+	std::list<std::string>::iterator 	itl;
+
+	// Check if the user is authorized to promot someone
+	for (itl = chanRights.begin(); itl != chanRights.end(); ++itl)
+		if (*itl == data[1]){
+			return;
+		}
+
+	// Check if the user is in the channel
+	//get the list of channels the client is connected to
+	std::list<std::string>::iterator it;
+	for (it = s.getClients(fd)->getChanRights().begin(); it != s.getClients(fd)->getChanRights().end(); it++)
+	{
+		if(s.getClientsUser(data[1]) == NULL)
+		{
+			send(fd, "Error : This user doesnt exists.\n", strlen("Error : This user doesnt exists.\n"), 0);
+			break;
+		}
+			
+	//if the client is connected to the channel that the operator wants to promot the user from
+		if (*it == data[0])
+		{
+			
+			//promot the user from the channel
+			Client* client;
+			client = s.getClientsUser(data[1]);
+			client->promot(data[0]);
+			
+			std::string msg;
+			//send a message to the user telling him he has been promoted
+			msg = ":you have been promoted to Operator of <";
+			msg += data[0];
+			msg += "> chan ";
+			msg += data[2];
+			msg += "\n";
+			send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
+			break;
+		}
+	}
+}
+
+
+
 void ign(Server &s, int fd, std::string n){
 	(void)s;
 	(void)n;
@@ -20,9 +84,9 @@ void ign(Server &s, int fd, std::string n){
     std::cout << "              |  / )            |			" << std::endl;
     std::cout << "              | /   )           |			" << std::endl;
     std::cout << "              _/    /_					" << std::endl;
-	std::cout << "                      					" << std::endl;
+	std::cout << "                     						" << std::endl;
 	std::cout << "		88888b.  .d88b. 88888b.  .d88b. 	" << std::endl;
-	std::cout << "		888  88bd88  88b888  88bd88P 88b	" << std::endl;
+	std::cout << "		888  88bd88""88b888  88bd88P 88b	" << std::endl;
 	std::cout << "		888  888888  888888  888888  888	" << std::endl;
 	std::cout << "		888 d88PY88..88P888  888Y88b 888	" << std::endl;
 	std::cout << "		88888P    Y88P  888  888  Y88888 	" << std::endl;
@@ -203,26 +267,24 @@ void kick(Server &s, int fd, std::string input){
 	//get the list of channels the client is connected to
 for (it = s.getClients(fd)->getChanRights().begin(); it != s.getClients(fd)->getChanRights().end(); it++)
 {
-	std::cout << "channel: " << *it << std::endl;
-	std::cout << "data[0]: " << data[0] << std::endl;
+	if(s.getClientsUser(data[1]) == NULL)
+	{
+		send(fd, "Error : This user doesnt exists.\n", strlen("Error : This user doesnt exists.\n"), 0);
+		break;
+	}
 	//if the client is connected to the channel that the operator wants to kick the user from
 	if (*it == data[0])
 	{
-		std::cout << "ici" << std::endl;
 		//remove the user from the channel
 		s.rmChannelUser(data[0], s.getClientsUser(data[1]));
-		std::cout << "ici2" << std::endl;
 		std::string msg;
-		std::cout << "ici3" << std::endl;
 		//send a message to the user telling him he has been kicked
 		msg = ":you have been kicked from <";
 		msg += data[0];
 		msg += "> chan ";
 		msg += data[2];
 		msg += "\n";
-		std::cout << "ici4" << std::endl;
 		send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
-		std::cout << "ici5" << std::endl;
 		break;
 	}
 }
@@ -305,7 +367,7 @@ void notice(Server &s, int fd, std::string targetAndText){
 		std::string nick = s.getClients(fd)->getNickname();
 		msg = ":";
 		msg += s.getClients(fd)->getID();
-		msg += " PRIVMSG ";
+		msg += "\e[31m NOTICE by \e[0m ";
 		msg += nick;
 		msg += " :";
 		msg += textToSend;

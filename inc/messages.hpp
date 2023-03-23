@@ -14,6 +14,7 @@ enum e_messages{
 	E_PRIVMSG,
 	E_NOTICE,
 	E_PING,
+	E_OP,
 	E_KICK,
 	E_PART,
 };
@@ -40,6 +41,7 @@ void	names(Server &s, int fd, std::string channel);
 void	list(Server &s, int fd, std::string channel);
 	// Invite message
 void	kick(Server &s, int fd, std::string channelAndUser);
+void	op(Server &s, int fd, std::string cmd);
 
 //Server queries and command
 	//Version message
