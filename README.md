@@ -1,2 +1,3 @@
-# Reste a faire:
-  - bot a remix comme david guetta
+# Ft_irc
+
+All done. Waiting for evaluation.
