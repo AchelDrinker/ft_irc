@@ -52,7 +52,7 @@ void Bot::run()
 		messages.erase(messages.begin());
 		if (msg.empty())
 			continue;
-		std::cout << "Received : " << msg << std::endl;
+		std::cout << msg << std::endl;
 		if (msg == "quit")
 			break;
 	}
