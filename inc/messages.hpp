@@ -17,6 +17,8 @@ enum e_messages{
 	E_OP,
 	E_KICK,
 	E_PART,
+	E_BOT,
+	E_CMDBOT,
 };
 
 void	ign(Server &s, int fd, std::string n);
@@ -42,28 +44,9 @@ void	list(Server &s, int fd, std::string channel);
 	// Invite message
 void	kick(Server &s, int fd, std::string channelAndUser);
 void	op(Server &s, int fd, std::string cmd);
-
-//Server queries and command
-	//Version message
-	//Stats message
-	//Links message
-	//Time message
-	//Connect message
-	//Trace message
-	//Admin message
-	//Info messag
+void	bot(Server &s, int fd, std::string cmdBot);
 
 //Sending messages
 void	privmsg(Server &s, int fd, std::string targetAndText);
 void	notice(Server &s, int fd, std::string targetAndText);
 
-//User-based queries
-	//Who query
-	//Whois query
-	//Whowas message
-
-//Miscellaneous messages
-	//Kill message
-	//Ping message
-	//Pong message
-	//Error message

@@ -33,9 +33,8 @@ class Bot
 
 		std::string receive;
 		std::vector<std::string> messages;
-		std::ofstream log;
 
-		void send_msg(std::string msg, bool toLog = false);
+		void send_msg(std::string msg);
 		void recv_msg();
 		void send_pass();
 		void send_nick();

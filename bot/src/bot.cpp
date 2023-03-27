@@ -18,17 +18,12 @@ Bot::Bot(bool *sig, std::string addr, int port, std::string pass, std::string ni
 
 	serv_addr.sin_addr = ((struct sockaddr_in *) servinfo->ai_addr)->sin_addr;
 	std::cout << "Connecting to " << addr << ":" << port << std::endl;
-	log.open("bot.log", std::ios::out | std::ios::app);
-	if (log.fail())
-		throw std::runtime_error("log file open failed");
-	log << "==========================================================" << std::endl;
 }
 
 Bot::~Bot()
 {
 	send_msg("QUIT");
 	close(sock);
-	log.close();
 }
 
 void Bot::run()
@@ -40,34 +35,15 @@ void Bot::run()
 		sleep(5);
 	}
 	send_pass();
-	while (!connected)
-	{
-		try
-		{
-			send_nick();
-		}
-		catch (std::runtime_error &e)
-		{
-			std::cerr << e.what() << std::endl;
-			nick += "_";
-		}
-	}
+	sleep(1);
+	send_msg("NICK BOT");
 	std::cout << "Connected as " << nick << std::endl;
-	send_msg("USER " + nick + " " + nick + " " + addr + " :" + nick);
-	while (!*sig)
-	{
-		if (messages.empty())
-			recv_msg();
-		if (DEBUG)
-			std::cout << messages[0] << std::endl;
-		std::string msg = messages[0];
-		messages.erase(messages.begin());
-		if (msg.find("376 " + nick) != std::string::npos)
-			break;
-	}
-	std::cout << "Joined server " << addr << std::endl;
-	send_msg("JOIN #" + nick);
-	std::cout << "Joined #" << nick << std::endl;
+	sleep(1);
+	send_msg("USER BOT");
+	sleep(1);
+	std::cout << "Bot is joining server test " << addr << std::endl;
+	send_msg("JOIN test");
+	std::cout << "test channel joined" << std::endl;
 	while (!*sig)
 	{
 		if (messages.empty())
@@ -76,59 +52,16 @@ void Bot::run()
 		messages.erase(messages.begin());
 		if (msg.empty())
 			continue;
-		if (DEBUG)
-			std::cout << "< " + msg << std::endl;
-		if (msg.find("PING") != std::string::npos)
-			send_msg("PONG :" + msg.substr(5));
-		else
-		{
-			std::vector<std::string> values = Utils::split(msg, " ");
-			if (std::find(values.begin(), values.end(), "JOIN") != values.end())
-				log << C_B_YELLOW << &values[0].substr(0, values[0].find('!'))[1] << C_B_RESET << " joined" << std::endl;
-			else if (std::find(values.begin(), values.end(), "PRIVMSG") != values.end())
-			{
-				log << "<" << C_YELLOW << &values[0].substr(0, values[0].find('!'))[1] << C_RESET << "> ";
-				for (std::vector<std::string>::iterator it = values.begin() + 3; it != values.end(); ++it)
-				{
-					if (it != values.begin() + 3)
-						log << " ";
-					log << *it;
-				}
-				log << std::endl;
-				if (values[3] == ":!flip")
-					send_msg("NOTICE " + values[2] + " :" + (rand() % 2 == 0 ? "heads" : "tails"), true);
-				else if (values[3] == ":!roll")
-					send_msg("NOTICE " + values[2] + " :" + Utils::toString(rand() % 6 + 1), true);
-				else if (values[3] == ":!help")
-					send_msg("NOTICE " + values[2] + " :!flip - flip a coin, !roll - roll a dice", true);
-				else if (values[3] == ":!quit")
-					return;
-				else if (values[3] == ":!nick")
-					send_msg("NICK " + values[2].substr(1), true);
-			}
-			else if (std::find(values.begin(), values.end(), "PART") != values.end())
-				log << C_B_YELLOW << &values[0].substr(0, values[0].find('!'))[1] << C_RESET << " leave" << std::endl;
-		}
+		std::cout << "Received : " << msg << std::endl;
+		if (msg == "quit")
+			break;
 	}
 }
 
-void Bot::send_msg(std::string msg, bool toLog)
+void Bot::send_msg(std::string msg)
 {
-	if (toLog)
-	{
-		std::vector<std::string> values = Utils::split(msg, " ");
-		log << "<" << C_YELLOW << nick << C_RESET << "> ";
-		for (std::vector<std::string>::iterator it = values.begin() + 2; it != values.end(); ++it)
-		{
-			if (it != values.begin() + 2)
-				log << " ";
-			log << *it;
-		}
-		log << std::endl;
-	}
+	std::vector<std::string> values = Utils::split(msg, " ");
 	msg += "\r\n";
-	if (DEBUG)
-		std::cout << "> " + msg << std::endl;
 	if (send(sock, msg.c_str(), msg.size(), 0) < 0)
 		throw std::runtime_error("send() failed");
 }
@@ -169,15 +102,4 @@ void Bot::send_pass()
 	if (pass.empty())
 		return;
 	send_msg("PASS " + pass);
-}
-
-void Bot::send_nick()
-{
-	send_msg("NICK " + nick);
-	recv_msg();
-	std::string msg = messages[0];
-	messages.erase(messages.begin());
-	if (msg.find("433") != std::string::npos)
-		throw std::runtime_error("Nickname already in use");
-	connected = true;
 }
