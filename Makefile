@@ -12,7 +12,7 @@ NONE = '\033[3m'
 
 CLASS_SRCS = Socket Client Server Channel
 
-COM_SRCS = com messages poll welcome 
+COM_SRCS = com messages poll welcome dcc
 
 PRE_SRCS =	main init connexion \
 			$(addprefix $(CLASS_DIR), $(CLASS_SRCS)) \

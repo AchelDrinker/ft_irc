@@ -22,6 +22,7 @@ int msg(int fd, Server &s){
 		perror("\e[31mconnection issue\e[0m ");
 		return FAIL;
 	}
+	
 	input += std::string(buffer, dsize);
 	free(buffer);
 	std::cout << "Received from fd " << fd << ": " << input; //Display msg
@@ -40,7 +41,7 @@ static void	manageMsg(std::string input, Server &s, int fd){
 	int			msg;
 	int			reg;
 	int			pw;
-	std::string msgs[msgsNb] = {"PASS", "NICK", "USER", "JOIN", "NAMES", "LIST", "PRIVMSG", "NOTICE", "PING", "OP", "KICK", "PART", "!"};
+	std::string msgs[msgsNb] = {"PASS", "NICK", "USER", "JOIN", "NAMES", "LIST", "PRIVMSG", "NOTICE", "PING", "OP", "KICK", "PART", "!", "FILE"};
 
 	input = input.substr(0, input.find("\n")).substr(0, input.find("\r"));
 	firstWord = input.substr(0, input.find(" "));
@@ -73,6 +74,7 @@ static void	init_arr_funct(void (*arr[NBCMD])(Server &s, int fd, std::string str
 	arr[E_KICK] = kick;
 	arr[E_PART] = part;
 	arr[E_BOT] = bot;
+	arr[E_FILE] = dcc;
 }
 static int	checkRegister(int fd, int msg, Server &s){
 	if (msg == E_PASS || msg == E_NICK || msg == E_USER)

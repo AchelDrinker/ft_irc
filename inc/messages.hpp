@@ -18,7 +18,7 @@ enum e_messages{
 	E_KICK,
 	E_PART,
 	E_BOT,
-	E_CMDBOT,
+	E_FILE,
 };
 
 void	ign(Server &s, int fd, std::string n);
@@ -45,6 +45,7 @@ void	list(Server &s, int fd, std::string channel);
 void	kick(Server &s, int fd, std::string channelAndUser);
 void	op(Server &s, int fd, std::string cmd);
 void	bot(Server &s, int fd, std::string cmdBot);
+void	dcc(Server &s, int fd, std::string filename);
 
 //Sending messages
 void	privmsg(Server &s, int fd, std::string targetAndText);

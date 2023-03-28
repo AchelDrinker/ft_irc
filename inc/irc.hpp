@@ -7,6 +7,8 @@
 #define	FAIL 1
 #define	ERROR -1
 
+#define BUFFER_SIZE 4096
+
 #define FALSE 0
 #define TRUE 1
 
@@ -20,13 +22,18 @@
 #include <cerrno>	//	errno
 #include <cstdio>		// perror
 #include <netinet/in.h> // struct sockaddr_in
-#include <sys/types.h>	// sockets
+#include <sys/types.h>	// sockets ans recv
 #include <sys/socket.h>	// sockets
 #include <netdb.h>		// gethostbyname
 #include <string.h>		// memset
 #include <sys/poll.h>	// epoll not available on our machine - pref poll than select
 #include <fcntl.h>		// fcntl
-#include <sys/types.h>	//revc
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include <arpa/inet.h>
+#include <fstream>
 
 // class
 #include "Socket.hpp"
