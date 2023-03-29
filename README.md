@@ -1,3 +1,4 @@
 # Ft_irc
 
-All done. Waiting for evaluation.
+
+Evaluation : 125/100
