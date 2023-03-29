@@ -15,9 +15,28 @@
 # include <fstream>
 # include <algorithm>
 # include "color.hpp"
-# include "../Utils/Utils.hpp"
+# include <ctime>
+# include <sstream>
+# include <string>
 
 #define DEBUG false
+
+namespace Utils
+{
+	std::string currentTime();
+
+	void error(std::string message, bool stop);
+
+	std::vector<std::string> split(std::string str, std::string delimiter);
+
+	bool isLetter(char c);
+	bool isSpecial(char c);
+	bool isDigit(char c);
+
+	std::string toString(size_t var);
+
+	bool strmatch(std::string str, std::string pattern);
+}
 
 class Bot
 {

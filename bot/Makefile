@@ -1,39 +1,59 @@
-NAME = bot
-SRCS = $(shell find . -name "*.cpp")
-OBJ_PATH := ./objs
-OBJS = $(SRCS:.cpp=.o)
-OBJ := $(patsubst %,$(OBJ_PATH)%,$(OBJS))
-FLAGS = -Wall -Wextra -Werror -std=c++98
+NAME				=	bot
+
+DIRECTORY_CHECK		=	src
+DIRECTORY_SOURCE	=	src
+DIRECTORY_OBJECT	=	objects
+
+FILES_CHECK			=	bot.hpp
+FILES_SOURCE		=	bot.cpp \
+						main.cpp
+
+COMPILE				=	clang++
+COMPILATION_FLAG	=	-Wall -Wextra -Werror -std=c++98 -g 
+
+ARGUMENTS			=	localhost 6667 password
 
 GREEN = '\033[92m'
 RED = '\033[91m'
 NONE = '\033[3m'
 
 all: $(NAME)
+	echo $(GREEN)"----- | --- --- --- ---  USAGE --- --- --- --- ---| -----"$(NONE)
+	echo $(GREEN)"----- | ./bot <ip> <port> <password> <nickname>   | -----"$(NONE)
+	echo $(GREEN)"----- | --- --- --- --- ------ --- --- --- --- ---| -----"$(NONE)
 
-$(NAME): $(SRCS) $(OBJS)
-	@mkdir objs
-	@mv $(OBJS) objs
-	@echo $(GREEN) "--Loading--" $(NONE)
-	@sleep 0.2
-	@c++ $(FLAGS) $(SRCS) -o $(NAME)
-	@echo $(GREEN) "$(NAME) was created ! " $(NONE)
+$(DIRECTORY_OBJECT)/%.o: $(DIRECTORY_SOURCE)/%.cpp $(FILES_CHECK:%=$(DIRECTORY_CHECK)/%)
+	@printf "\e[33m"
+	@printf "Compile\t$< -> $@\n"
+	mkdir -p $(dir $@)
+	$(COMPILE) $(COMPILATION_FLAG) -c $< -o $@
 
-%o: %.c
-	c++ -c $(FLAGS) $< -o $@
+$(NAME): $(FILES_SOURCE:%.cpp=$(DIRECTORY_OBJECT)/%.o)
+	@printf "Compile src/messages.cpp -> objects/messages.o\t\n"
+	@printf "\e[32m"
+	@printf "Build\t$@\n"
+	$(COMPILE) -o $@ $(FILES_SOURCE:%.cpp=$(DIRECTORY_OBJECT)/%.o)
+
+run: all
+	@printf "\e[0m"
+	./$(NAME) $(ARGUMENTS)
 
 clean:
-	@echo $(RED) "-- Deleting-- " $(NONE)
-	@sleep 0.2
-	@rm -rf $(OBJ_PATH)
-	@echo $(RED) "Objects was deleted" $(NONE)
+	@printf "\e[31m"
+	@printf "Remove\t$(DIRECTORY_OBJECT)\n"
+	rm -rf $(DIRECTORY_OBJECT)
 
 fclean: clean
-	@echo $(RED) "Deleting --$(NAME)-- " $(NONE)
-	@sleep 0.2
-	@rm -rf $(NAME)
-	@echo $(RED) "$(NAME) was deleted !" $(NONE)
+	@printf "Remove\t$(NAME)\n"
+	rm -f $(NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+rrun: re run
+
+leaks: all
+	@printf "\e[0m"
+	valgrind make run
+
+.PHONY: all run clean fclean re rrun leaks
+.SILENT:

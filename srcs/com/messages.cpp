@@ -57,7 +57,7 @@ void op(Server &s, int fd, std::string cmd){
 			msg += data[0];
 			msg += "> chan ";
 			msg += data[2];
-			msg += "\n";
+			msg += "\r\n";
 			send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
 			break;
 		}
@@ -69,7 +69,7 @@ void op(Server &s, int fd, std::string cmd){
 void ign(Server &s, int fd, std::string n){
 	(void)s;
 	(void)n;
-	send(fd, "PONG 127.0.0.1\n", strlen("PONG 127.0.0.1\n"), 0);
+	send(fd, "PONG 127.0.0.1\r\n", strlen("PONG 127.0.0.1\r\n"), 0);
 	std::cout << "                     O 					" << std::endl;
     std::cout << "                   _/|)_-O				" << std::endl;
     std::cout << "                  ___|_______				" << std::endl;
@@ -108,7 +108,7 @@ void pass(Server &s, int fd, std::string pwd){
 		return;
 	}
 	if (s.getPwd() == pwd){
-		send(fd, "SUCCESS\n", strlen("SUCCESS\n"), 0);
+		send(fd, "SUCCESS\r\n", strlen("SUCCESS\r\n"), 0);
 		s.getClients(fd)->setPass(1);
 	}else
 		send(fd, ERR_PASSWDMISMATCH, sizeof(ERR_PASSWDMISMATCH), 0);
@@ -169,7 +169,7 @@ void join(Server &s, int fd, std::string channel){
 	s.addChannelUser(channel, s.getClients(fd));
 	msg = ":local JOIN ";
 	msg += channel;
-	msg += "\n";
+	msg += "\r\n";
 	sendMsgChan(msg, s, fd, channel);
 	send(fd, msg.c_str(), msg.length(), 0);
 
@@ -283,7 +283,7 @@ for (it = s.getClients(fd)->getChanRights().begin(); it != s.getClients(fd)->get
 		msg += data[0];
 		msg += "> chan ";
 		msg += data[2];
-		msg += "\n";
+		msg += "\r\n";
 		send(s.getClientsUser(data[1])->getClientSocket(), msg.c_str(), msg.length(), 0);
 		break;
 	}
@@ -327,7 +327,7 @@ void privmsg(Server &s, int fd, std::string targetAndText){
 		msg += nick;
 		msg += " :";
 		msg += textToSend;
-		msg += "\n";
+		msg += "\r\n";
 		if (c)
 			send(c->getClientSocket(), msg.c_str(), msg.length(), 0);
 		else
@@ -371,7 +371,7 @@ void notice(Server &s, int fd, std::string targetAndText){
 		msg += nick;
 		msg += " :";
 		msg += textToSend;
-		msg += "\n";
+		msg += "\r\n";
 		if (c)
 			send(c->getClientSocket(), msg.c_str(), msg.length(), 0);
 		else
@@ -464,13 +464,19 @@ void bot(Server &s, int fd, std::string cmdBot)
 			send(fd, msg.c_str(), msg.length(), 0);
 		}
 		else if (cmdBot == "help"){
+			intro = "Need help ?";
+			intro += "\r\n";
+			send(c->getClientSocket(), intro.c_str(), intro.length(), 0);
 			msg = "Available commands: flip, fouiny, quit";
 			msg += "\r\n";
 			send(fd, msg.c_str(), msg.length(), 0);
 		}
 		else if (cmdBot == "quit"){
-			msg = "quit\r\n";
-			send(c->getClientSocket(), msg.c_str(), msg.length(), 0);
+			intro = "quit\r\n";
+			send(c->getClientSocket(), intro.c_str(), intro.length(), 0);
+			msg = "BOT is leaving";
+			msg += "\r\n";
+			send(fd, msg.c_str(), msg.length(), 0);
 		}
 		else{
 			msg = "Unknown command: ! ";
@@ -481,8 +487,6 @@ void bot(Server &s, int fd, std::string cmdBot)
 	}
 	
 }
-
-
 
 static int trimFirstSpace(int fd, std::string &s){
 	try{
