@@ -29,7 +29,6 @@ $(DIRECTORY_OBJECT)/%.o: $(DIRECTORY_SOURCE)/%.cpp $(FILES_CHECK:%=$(DIRECTORY_C
 	$(COMPILE) $(COMPILATION_FLAG) -c $< -o $@
 
 $(NAME): $(FILES_SOURCE:%.cpp=$(DIRECTORY_OBJECT)/%.o)
-	@printf "Compile src/messages.cpp -> objects/messages.o\t\n"
 	@printf "\e[32m"
 	@printf "Build\t$@\n"
 	$(COMPILE) -o $@ $(FILES_SOURCE:%.cpp=$(DIRECTORY_OBJECT)/%.o)
