@@ -6,8 +6,11 @@ Ce projet est une implémentation simple d'un serveur IRC en C++ 98. Le serveur 
 
 ## 🎯 Fonctionnalités
 🔄 Gère de multiples clients simultanément.
+
 🔒 Authentification avec mot de passe.
+
 📜 Soutien pour différentes commandes IRC pour les opérateurs de canal et les utilisateurs réguliers.
+
 🌐 Communication via TCP/IP (v4 ou v6).
 
 
